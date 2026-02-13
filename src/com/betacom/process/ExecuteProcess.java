@@ -14,7 +14,7 @@ public class ExecuteProcess {
 	public void execute() {
 		
 		
-		String key = "bicicletta";
+		String key = "macchina";
 		
 		Map<String, ProcessInterface> mappaProcessi = new HashMap<String, ProcessInterface>();
 		

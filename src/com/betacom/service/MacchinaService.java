@@ -1,5 +1,8 @@
 package com.betacom.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.betacom.dao.MacchinaDao;
 import com.betacom.entities.Macchina;
 import com.betacom.interaface.ProcessInterface;
@@ -12,7 +15,7 @@ public class MacchinaService implements ProcessInterface{
 	@Override
 	public void execute() throws Exception {
 		System.out.println("Macchina service start execute");
-		DataBaseConfiguration istanzaDb = DataBaseConfiguration.getInstance();
+	
 		
 		System.out.println("Db istanziato");
 		
@@ -29,30 +32,42 @@ public class MacchinaService implements ProcessInterface{
 		macchina.setTarga("CX548SA");
 		macchina.setTipoVeicolo("Macchina");
 		
-		System.out.println(macchina.toString());
+		//System.out.println(macchina.toString());
+		List<Object> listaParametri = new ArrayList<Object>();
+		/*listaParametri.add(macchina.getTipoVeicolo());
+		listaParametri.add(macchina.getNumeroRuote());
+		listaParametri.add(macchina.getIdAlimentazione());
+		listaParametri.add(macchina.getIdCategoria());
+		listaParametri.add(macchina.getIdColore());
+		listaParametri.add(macchina.getMarca());
+		listaParametri.add(macchina.getAnnoDiProduzione());
+		listaParametri.add(macchina.getModello());
+		listaParametri.add(macchina.getPorte());
+		listaParametri.add(macchina.getTarga());
+		listaParametri.add(macchina.getCilindrata());*/
 		
+		listaParametri.add(1);
+		Macchina macchinaTrovata = findMacchinaById(listaParametri);
 		
-		inserisciMacchina(istanzaDb.getMacchinaQueryProperties("insert.macchina"), new Object[] {
-				macchina.getTipoVeicolo(),
-				macchina.getNumeroRuote(),
-				macchina.getIdAlimentazione(),
-				macchina.getIdCategoria(),
-				macchina.getIdColore(),
-				macchina.getMarca(),
-				macchina.getAnnoDiProduzione(),
-				macchina.getModello(),
-				macchina.getPorte(),
-				macchina.getTarga(),
-				macchina.getCilindrata()
-				
-		});
+		System.out.println(macchinaTrovata.toString());
 		
 	} 
 
 	
 	
-	public int inserisciMacchina(String query, Object[] params) throws Exception {
-		return macchinaDao.inserisciMacchina(query, params);
+	public int inserisciMacchina(List<Object> params) throws Exception {
+		return macchinaDao.inserisciMacchina(params);
+	}
+	
+	
+	public int deleteMacchinaById( List<Object> params) throws Exception {
+		return macchinaDao.deleteMacchinaById(params);
+	}
+	
+	public Macchina findMacchinaById(List<Object> params) throws Exception{
+		
+		return macchinaDao.findMacchinaById(params);
+	
 	}
 
 

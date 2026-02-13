@@ -1,5 +1,8 @@
 package com.betacom.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.betacom.dao.BiciclettaDao;
 import com.betacom.entities.Bicicletta;
 import com.betacom.interaface.ProcessInterface;
@@ -20,37 +23,44 @@ public class BiciclettaService implements ProcessInterface {
 		bicicletta.setIdAlimentazione(1);
 		bicicletta.setIdCategoria(1);
 		bicicletta.setIdColore(1);
-		bicicletta.setMarca("Bmw");
+		bicicletta.setMarca("BMX");
 		bicicletta.setModello("125d");
 		bicicletta.setNumeroRuote(4);
-		bicicletta.setTipoVeicolo("Macchina");
+		bicicletta.setTipoVeicolo("xxx");
 		bicicletta.setIdSospensione(1);
 		bicicletta.setIdFreno(1);
 		bicicletta.setNumeroMarce(21);
 		
 		
-		inserisciBicicletta(istanzaDb.getBiciclettaQueryProperties("insert.bicicletta"), new Object[] {
-				bicicletta.getTipoVeicolo(),
-				bicicletta.getNumeroRuote(),
-				bicicletta.getIdAlimentazione(),
-				bicicletta.getIdCategoria(),
-				bicicletta.getIdColore(),
-				bicicletta.getMarca(),
-				bicicletta.getAnnoDiProduzione(),
-				bicicletta.getModello(),
-				bicicletta.getNumeroMarce(),
-				bicicletta.getIdFreno(),
-				bicicletta.getIdSospensione()
-				
-		});
+		List<Object> listaParametri = new ArrayList<Object>();
+		listaParametri.add(bicicletta.getTipoVeicolo());
+		listaParametri.add(bicicletta.getNumeroRuote());
+		listaParametri.add(bicicletta.getIdAlimentazione());
+		listaParametri.add(bicicletta.getIdCategoria());
+		listaParametri.add(bicicletta.getIdColore());
+		listaParametri.add(bicicletta.getMarca());
+		listaParametri.add(bicicletta.getAnnoDiProduzione());
+		listaParametri.add(bicicletta.getModello());
+		listaParametri.add(bicicletta.getNumeroMarce());
+		listaParametri.add(bicicletta.getIdFreno());
+		listaParametri.add(bicicletta.getIdSospensione());
 		
+		listaParametri.add(21);
+		
+		inserisciBicicletta(listaParametri);
+		deleteBiciclettaById(listaParametri);
 	}
 	
 	
 	
 	
-	public int inserisciBicicletta(String query, Object[] params) throws Exception {
-		return biciclettaDao.inserisciBicicletta(query, params);
+	public int inserisciBicicletta(List<Object> params) throws Exception {
+		return biciclettaDao.inserisciBicicletta(params);
+	}
+	
+	
+	public int deleteBiciclettaById(List<Object> params) throws Exception {
+		return biciclettaDao.deleteBiciclettaById(params);
 	}
 
 }

@@ -83,5 +83,8 @@ public class DataBaseConfiguration {
 		connection.setAutoCommit(value);
 	}
 	
+	
+	
+	
 
 }

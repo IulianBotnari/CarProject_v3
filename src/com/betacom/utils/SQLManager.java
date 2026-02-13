@@ -7,11 +7,13 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import com.betacom.singleton.DataBaseConfiguration;
+
+import java.sql.Statement;
 
 
 public class SQLManager {
@@ -53,7 +55,7 @@ public class SQLManager {
 	}
 	
 	
-	private PreparedStatement createSet(PreparedStatement pstm, Object[] params) {
+	private PreparedStatement createSet(PreparedStatement pstm, List<Object> params) {
 		
 		int idx = 1;
 		
@@ -70,7 +72,7 @@ public class SQLManager {
 	}
 	
 	
-	public List<Map<String, Object>> lista (String query, Object[] params) throws Exception{
+	public List<Map<String, Object>> lista (String query, List<Object> params) throws Exception{
 		try {
 			PreparedStatement pstm = DataBaseConfiguration.getInstance().getConnection().prepareStatement(query);
 			pstm = createSet(pstm, params);
@@ -86,8 +88,8 @@ public class SQLManager {
 	
 	
 	
-	public int save(String query, Object[] params, String nomeTabella)throws Exception{
-		if (query == null || params.length < 1) {
+	public int save(String query, List<Object> params, String nomeTabella)throws Exception{
+		if (query == null || params.size() < 1) {
 			throw new Exception("Query non trovata oppure parametri non trovati");
 		};
 		int numeroColonne = getNumeroColonneTabella(nomeTabella);
@@ -101,7 +103,8 @@ public class SQLManager {
 		
 		if (query.contains(";")) {
 			try {
-				splitQuery = query.split(";");		
+				splitQuery = query.split(";");	
+				
 				querySuperClasse = splitQuery[0];
 				System.out.println("Query per veicolo: " + querySuperClasse);
 				querySottoClasse = splitQuery[1];
@@ -109,53 +112,49 @@ public class SQLManager {
 				
 				DataBaseConfiguration.getInstance().getConnection().setAutoCommit(false);
 		
-				Object[] paramsPerQueryUno = Arrays.copyOfRange(params, 0, params.length - numeroColonne +2);
-				Object[] paramsRimanenti = Arrays.copyOfRange(params, paramsPerQueryUno.length, params.length);
+				List<Object> paramsPerQueryUno = new ArrayList<Object>(params.subList(0, params.size() - numeroColonne + 2));
+				List<Object> paramsPerQueryDue = new ArrayList<Object>(params.subList(paramsPerQueryUno.size(), params.size()));
 			
 
 				
-				PreparedStatement pstm = this.getConnection().prepareStatement(querySuperClasse, java.sql.Statement.RETURN_GENERATED_KEYS);
+				PreparedStatement pstm = this.getConnection().prepareStatement(querySuperClasse, Statement.RETURN_GENERATED_KEYS);
 				pstm = createSet(pstm, paramsPerQueryUno);
 				pstm.executeUpdate();
 				
 				ResultSet resultSet = pstm.getGeneratedKeys();
 				
-				int idVeicolo = 0;
-				
 				if (resultSet.next()) {
-					idVeicolo = resultSet.getInt(1);
+					risultato = resultSet.getInt(1);
 				}
 				
-				Object[] paramsPerQueryDue = new Object[paramsRimanenti.length + 1];
-				paramsPerQueryDue[0] = idVeicolo;
-				for (int i = 1; i < paramsPerQueryDue.length; i++) {
-					paramsPerQueryDue[i] = paramsRimanenti[i -1];
-				}
+				paramsPerQueryDue.add(0, risultato);
 				
 				PreparedStatement pstm2 = this.getConnection().prepareStatement(querySottoClasse);
 				pstm2 = createSet(pstm2, paramsPerQueryDue);
 				risultato = pstm2.executeUpdate();
-				
-				
+		
 				DataBaseConfiguration.getInstance().getConnection().commit();;
 
 			} catch (Exception e) {
 				System.out.println("Errore durante il salvataggio: " + e.getMessage());
+				DataBaseConfiguration.getInstance().getConnection().rollback();
 				e.printStackTrace();
+			} finally {
+				DataBaseConfiguration.getInstance().getConnection().setAutoCommit(true);
 			}
 			
 			
 		} else {
 			try {
-				PreparedStatement pstm = this.getConnection().prepareStatement(query);
+				PreparedStatement pstm = this.getConnection().prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
 				pstm = createSet(pstm, params);
 				risultato = pstm.executeUpdate();
-				
-			
-				
+										
 			} catch (Exception e) {
 				System.out.println("Errore durante il salvataggio: " + e.getMessage());
+				e.printStackTrace();
 			}
+			
 		}
 		
 		return risultato;
@@ -173,6 +172,37 @@ public class SQLManager {
 		}
 		
 		return numeroColonne;
+	}
+	
+	
+	public Map<String, Object> getObject (String query, List<Object> params) throws Exception{
+		try {
+			PreparedStatement pstm = DataBaseConfiguration.getInstance().getConnection().prepareStatement(query);
+			pstm = createSet(pstm, params);
+			ResultSet resultSet = pstm.executeQuery();
+			return resultSetToMap(resultSet);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception(e.getMessage());
+		
+		}
+		
+	
+	}
+	
+	
+	public Map<String, Object> resultSetToMap(ResultSet resultSet) throws SQLException{
+		ResultSetMetaData metaData = resultSet.getMetaData();
+		int numeroColonne = metaData.getColumnCount();
+		Map<String, Object> map = new HashMap<String,Object>();
+		while (resultSet.next()) {
+
+			for (int i = 1; i<=numeroColonne; i++) {
+				map.put(metaData.getColumnName(i), resultSet.getObject(i));
+			}
+	
+		}
+		return map;
 	}
 	
 }

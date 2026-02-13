@@ -1,5 +1,9 @@
 package com.betacom.service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import com.betacom.dao.MotoDao;
 import com.betacom.entities.Moto;
 import com.betacom.interaface.ProcessInterface;
@@ -26,26 +30,29 @@ public class MotoService implements ProcessInterface{
 		moto.setTarga("CX548SA");
 		moto.setTipoVeicolo("Moto");
 		
+		List<Object> listaParametri = new ArrayList<Object>();
+		listaParametri.add(moto.getTipoVeicolo());
+		listaParametri.add(moto.getNumeroRuote());
+		listaParametri.add(moto.getIdAlimentazione());
+		listaParametri.add(moto.getIdCategoria());
+		listaParametri.add(moto.getIdColore());
+		listaParametri.add(moto.getMarca());
+		listaParametri.add(moto.getAnnoDiProduzione());
+		listaParametri.add(moto.getModello());
+		listaParametri.add(moto.getTarga());
+		listaParametri.add(moto.getCilindrata());
 		
-		
-		inserisciMoto(istanzaDb.getMotoQueryProperties("insert.moto"), new Object[] {
-				moto.getTipoVeicolo(),
-				moto.getNumeroRuote(),
-				moto.getIdAlimentazione(),
-				moto.getIdCategoria(),
-				moto.getIdColore(),
-				moto.getMarca(),
-				moto.getAnnoDiProduzione(),
-				moto.getModello(),
-				moto.getTarga(),
-				moto.getCilindrata()
-				
-		});
+		inserisciMoto(listaParametri);
 	}
 	
 	
-	public int inserisciMoto(String query, Object[] params) throws Exception {
-		return motoDao.inserisciMoto(query, params);
+	public int inserisciMoto(List<Object> params) throws Exception {
+		return motoDao.inserisciMoto(params);
 	}
+	
+	public int deleteMotoById(String query, List<Object> params) throws Exception {
+		return motoDao.deleteMotoById(params);
+	}
+	
 
 }
